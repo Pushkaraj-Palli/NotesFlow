@@ -66,26 +66,36 @@ export default function DashboardPage() {
   }
 
   const handleEditNote = (note: Note) => {
-    setEditingNote(note)
-    setIsEditorOpen(true)
-  }
+    setEditingNote({ ...note, id: note._id.toString() });
+    setIsEditorOpen(true);
+  };
 
   const handleSaveNote = async (
     noteData: Omit<Note, "id" | "createdAt" | "updatedAt" | "tenantId" | "userId" | "isPinned">,
   ) => {
+    console.log("app/dashboard/page.tsx: handleSaveNote called with data:", noteData); // Log note data
     try {
       if (editingNote) {
+        console.log("app/dashboard/page.tsx: Updating existing note:", editingNote.id); // Log update attempt
+        if (!editingNote.id) {
+          console.error("app/dashboard/page.tsx: Cannot update note, ID is missing.");
+          // Potentially show a user-friendly error or throw an error
+          return;
+        }
         await updateNoteMutation.mutateAsync({
           id: editingNote.id,
           updates: noteData,
-        })
+        });
+        console.log("app/dashboard/page.tsx: Note updated successfully."); // Log success
       } else {
+        console.log("app/dashboard/page.tsx: Creating new note.", noteData); // Log creation attempt
         await createNoteMutation.mutateAsync(noteData)
+        console.log("app/dashboard/page.tsx: New note created successfully."); // Log success
       }
       setIsEditorOpen(false)
       setEditingNote(null)
     } catch (error) {
-      console.error("Failed to save note:", error)
+      console.error("app/dashboard/page.tsx: Failed to save note:", error); // Log error
     }
   }
 
@@ -255,7 +265,7 @@ export default function DashboardPage() {
               <AnimatePresence>
                 {notes.map((note: Note, index: number) => (
                   <NoteCard
-                    key={note.id}
+                    key={note._id.toString()}
                     note={note}
                     onEdit={handleEditNote}
                     onDelete={handleDeleteNote}

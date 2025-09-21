@@ -24,7 +24,8 @@ export interface Tenant {
 }
 
 export interface Note {
-  id: string;
+  _id: mongoose.Types.ObjectId;
+  id?: string; // Optional client-side string ID
   title: string;
   content: string;
   tenantId: mongoose.Types.ObjectId;

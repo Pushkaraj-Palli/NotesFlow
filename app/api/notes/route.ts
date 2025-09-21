@@ -43,15 +43,20 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   const authResult = await getAuthUser(request);
   if (!authResult) {
+    console.error("app/api/notes/route.ts: Unauthorized attempt to create note.");
     return createErrorResponse("Unauthorized", 401);
   }
   const { user, tenant } = authResult;
+  console.log(`app/api/notes/route.ts: User ${user._id} (${user.email}) from Tenant ${tenant._id} attempting to create note.`);
 
   try {
     await connectDB();
+    console.log("app/api/notes/route.ts: Database connected for note creation.");
     const { title, content, tags = [] } = await request.json();
+    console.log(`app/api/notes/route.ts: Received data - Title: ${title}, Content: ${content.substring(0, 50)}..., Tags: ${tags}`);
 
     if (!title || !content) {
+      console.error("app/api/notes/route.ts: Title and content are required for note creation.");
       return createErrorResponse("Title and content are required", 400);
     }
 
@@ -60,13 +65,14 @@ export async function POST(request: NextRequest) {
       content,
       tags,
       tenantId: tenant._id,
-      userId: user.user._id,
+      userId: user._id,
       isPinned: false,
     });
+    console.log(`app/api/notes/route.ts: New note created with ID: ${newNote._id}`);
 
     return createApiResponse(newNote.toObject(), 201);
   } catch (error) {
-    console.error("Error creating note:", error);
+    console.error("app/api/notes/route.ts: Error creating note:", error);
     return createErrorResponse("Invalid request body or internal error", 400);
   }
 }

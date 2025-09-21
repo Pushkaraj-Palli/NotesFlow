@@ -6,6 +6,14 @@ const API_BASE = "/api"
 
 // API client with authentication
 class ApiClient {
+  constructor() {
+    this.getNotes = this.getNotes.bind(this);
+    this.createNote = this.createNote.bind(this);
+    this.updateNote = this.updateNote.bind(this);
+    this.deleteNote = this.deleteNote.bind(this);
+    this.togglePin = this.togglePin.bind(this);
+  }
+
   private getAuthHeaders() {
     if (typeof window === "undefined") {
       // Running on server, localStorage is not available
@@ -18,13 +26,15 @@ class ApiClient {
   }
 
   async request(endpoint: string, options: RequestInit = {}) {
+    const headers = new Headers({
+      "Content-Type": "application/json",
+      ...(this.getAuthHeaders() as Record<string, string>),
+      ...(options.headers as Record<string, string>),
+    });
+
     const response = await fetch(`${API_BASE}${endpoint}`, {
       ...options,
-      headers: {
-        "Content-Type": "application/json",
-        ...this.getAuthHeaders(),
-        ...options.headers,
-      },
+      headers: headers,
     });
 
     if (!response.ok) {

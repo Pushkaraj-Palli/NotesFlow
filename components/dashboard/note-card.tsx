@@ -70,7 +70,7 @@ export function NoteCard({ note, onEdit, onDelete, onTogglePin, index }: NoteCar
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => onTogglePin(note.id)} className="hover:bg-accent/10">
+                <DropdownMenuItem onClick={() => onTogglePin(note._id.toString())} className="hover:bg-accent/10">
                   <Pin className="mr-2 h-4 w-4 text-accent" />
                   {note.isPinned ? "Unpin" : "Pin"}
                 </DropdownMenuItem>
@@ -79,7 +79,7 @@ export function NoteCard({ note, onEdit, onDelete, onTogglePin, index }: NoteCar
                   Edit
                 </DropdownMenuItem>
                 <DropdownMenuItem
-                  onClick={() => onDelete(note.id)}
+                  onClick={() => onDelete(note._id.toString())}
                   className="text-destructive hover:bg-destructive/10"
                 >
                   <Trash2 className="mr-2 h-4 w-4" />

@@ -1,69 +1,82 @@
 // Individual note operations (GET, PUT, DELETE)
-import type { NextRequest } from "next/server"
-import { getAuthUser, createApiResponse, createErrorResponse } from "@/lib/api-utils"
-import { mockNotes } from "@/lib/mock-data"
-
-// In-memory storage for demo
-const notesStorage = [...mockNotes]
+import type { NextRequest } from "next/server";
+import { getAuthUser, createApiResponse, createErrorResponse } from "@/lib/api-utils";
+import { connectDB, Note } from "@/lib/mongodb";
 
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
-  const user = getAuthUser(request)
-  if (!user) {
-    return createErrorResponse("Unauthorized", 401)
+  const authResult = await getAuthUser(request);
+  if (!authResult) {
+    return createErrorResponse("Unauthorized", 401);
   }
+  const { user, tenant } = authResult;
+  const { id } = params;
 
-  const note = notesStorage.find((n) => n.id === params.id && n.tenantId === user.tenantId)
-  if (!note) {
-    return createErrorResponse("Note not found", 404)
+  try {
+    await connectDB();
+    const note = await Note.findOne({ _id: id, tenantId: tenant._id }).lean();
+
+    if (!note) {
+      return createErrorResponse("Note not found or unauthorized", 404);
+    }
+
+    return createApiResponse(note);
+  } catch (error) {
+    console.error("Error fetching note:", error);
+    return createErrorResponse("Internal server error", 500);
   }
-
-  return createApiResponse(note)
 }
 
 export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
-  const user = getAuthUser(request)
-  if (!user) {
-    return createErrorResponse("Unauthorized", 401)
+  const authResult = await getAuthUser(request);
+  if (!authResult) {
+    return createErrorResponse("Unauthorized", 401);
   }
+  const { user, tenant } = authResult;
+  const { id } = params;
 
   try {
-    const updates = await request.json()
-    const noteIndex = notesStorage.findIndex((n) => n.id === params.id && n.tenantId === user.tenantId)
+    await connectDB();
+    const updates = await request.json();
 
-    if (noteIndex === -1) {
-      return createErrorResponse("Note not found", 404)
+    const note = await Note.findOneAndUpdate(
+      { _id: id, tenantId: tenant._id },
+      { ...updates, updatedAt: new Date() },
+      { new: true }
+    ).lean();
+
+    if (!note) {
+      return createErrorResponse("Note not found or unauthorized", 404);
     }
 
-    // Update the note
-    notesStorage[noteIndex] = {
-      ...notesStorage[noteIndex],
-      ...updates,
-      updatedAt: new Date(),
-    }
-
-    return createApiResponse(notesStorage[noteIndex])
+    return createApiResponse(note);
   } catch (error) {
-    return createErrorResponse("Invalid request body", 400)
+    console.error("Error updating note:", error);
+    return createErrorResponse("Invalid request body or internal error", 400);
   }
 }
 
 export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
-  const user = getAuthUser(request)
-  if (!user) {
-    return createErrorResponse("Unauthorized", 401)
+  const authResult = await getAuthUser(request);
+  if (!authResult) {
+    return createErrorResponse("Unauthorized", 401);
   }
+  const { user, tenant } = authResult;
+  const { id } = params;
 
-  const noteIndex = notesStorage.findIndex((n) => n.id === params.id && n.tenantId === user.tenantId)
-  if (noteIndex === -1) {
-    return createErrorResponse("Note not found", 404)
+  try {
+    await connectDB();
+
+    const result = await Note.deleteOne({ _id: id, tenantId: tenant._id });
+
+    if (result.deletedCount === 0) {
+      return createErrorResponse("Note not found or unauthorized", 404);
+    }
+
+    return createApiResponse({ message: "Note deleted successfully" }, 200);
+  } catch (error) {
+    console.error("Error deleting note:", error);
+    return createErrorResponse("Internal server error", 500);
   }
-
-  // Check if user owns the note or is admin
-  const note = notesStorage[noteIndex]
-  if (note.userId !== user.id && user.role !== "admin") {
-    return createErrorResponse("Forbidden", 403)
-  }
-
-  notesStorage.splice(noteIndex, 1)
-  return createApiResponse({ message: "Note deleted successfully" })
 }
+
+export const runtime = 'nodejs'; // Use Node.js runtime
