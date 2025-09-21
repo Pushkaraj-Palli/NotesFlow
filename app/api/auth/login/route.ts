@@ -43,10 +43,16 @@ export async function POST(request: NextRequest) {
     if (!tenant) {
       console.warn(`Tenant not found for user ${user.email}. Creating a new default tenant.`);
       // Create a default tenant for the user
-      const newTenant = await Tenant.create({ name: `${user.name || user.email}'s Default Tenant` });
+      const newTenant = await Tenant.create({ name: `${user.name || user.email}'s Default Tenant`, plan: 'free' });
       user.tenantId = newTenant._id as mongoose.Types.ObjectId; // Explicitly cast to ObjectId
       await user.save(); // Save the updated user with the new tenantId
       tenant = newTenant;
+    } else if (tenant.plan === 'free' && (tenant.settings.maxNotes !== 3 || tenant.settings.maxUsers !== 1)) {
+      // Ensure existing free plan tenants have correct maxNotes and maxUsers
+      tenant.settings.maxNotes = 3;
+      tenant.settings.maxUsers = 1;
+      await tenant.save();
+      console.log(`Updated maxNotes and maxUsers for free plan tenant ${tenant._id}.`);
     }
     console.log("Tenant found (or created).");
 

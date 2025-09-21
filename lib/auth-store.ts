@@ -34,6 +34,7 @@ export const useAuthStore = create<AuthStore>()(
           if (response.ok) {
             const { user, tenant, token } = await response.json();
             localStorage.setItem("auth-token", token);
+            console.log("lib/auth-store.ts: Tenant data after login:", tenant); // Log tenant data
             console.log("lib/auth-store.ts: Token set in localStorage after login:", token); // Log token set
             set({
               user: { ...user, _id: user._id.toString(), id: user._id.toString() },
@@ -92,6 +93,7 @@ export const useAuthStore = create<AuthStore>()(
           if (response.ok) {
             const { user, tenant, token } = await response.json();
             localStorage.setItem("auth-token", token);
+            console.log("lib/auth-store.ts: Tenant data after registration:", tenant); // Log tenant data
             console.log("lib/auth-store.ts: Token set in localStorage after registration:", token); // Log token set
             set({
               user: { ...user, _id: user._id.toString(), id: user._id.toString() },

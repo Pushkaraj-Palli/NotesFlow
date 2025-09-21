@@ -28,6 +28,12 @@ export default function DashboardPage() {
   const [editingNote, setEditingNote] = useState<Note | null>(null)
   const [isPricingOpen, setIsPricingOpen] = useState(false)
 
+  // Log tenant data
+  useEffect(() => {
+    console.log("app/dashboard/page.tsx: Tenant plan:", tenant?.plan);
+    console.log("app/dashboard/page.tsx: Tenant maxNotes setting:", tenant?.settings.maxNotes);
+  }, [tenant]);
+
   // Fetch notes with search and tags
   const { data: notes = [], isLoading, error, refetch } = useNotes(searchQuery, selectedTags)
 
@@ -47,7 +53,7 @@ export default function DashboardPage() {
   }, [notes])
 
   // Check if user can create more notes
-  const canCreateNote = tenant?.plan === "pro" || notes.length < (tenant?.settings.maxNotes || 50)
+  const canCreateNote = tenant?.plan === "pro" || notes.length < (tenant?.settings.maxNotes || 50);
 
   // Refetch notes when user changes
   useEffect(() => {

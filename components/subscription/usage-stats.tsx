@@ -47,7 +47,7 @@ export function UsageStats({ notesCount, onUpgrade }: UsageStatsProps) {
             <div className="flex items-center justify-between text-sm">
               <span>Notes Used</span>
               <span className={isNearLimit ? "text-orange-500 font-medium" : ""}>
-                {notesCount} / {maxNotes === 1000 ? "Unlimited" : maxNotes}
+                {notesCount} / {maxNotes}
               </span>
             </div>
             {maxNotes !== 1000 && (

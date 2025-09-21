@@ -30,8 +30,8 @@ export async function POST(request: NextRequest) {
     const hashedPassword = await bcrypt.hash(password, 10);
     console.log("Password hashed.");
 
-    const newTenant = await Tenant.create({ name: `${name}'s Tenant` });
-    console.log(`New tenant created with ID: ${newTenant._id}`);
+    const newTenant = await Tenant.create({ name: `${name}'s Tenant`, plan: 'free' });
+    console.log(`New tenant created with ID: ${newTenant._id}, plan: ${newTenant.plan}`);
 
     const newUser = await User.create({
       email,

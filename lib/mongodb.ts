@@ -51,6 +51,7 @@ interface TenantDoc extends mongoose.Document {
   name: string;
   settings: {
     maxNotes: number;
+    maxUsers: number;
   };
   plan: 'free' | 'pro';
   createdAt: Date;
@@ -92,7 +93,8 @@ try {
   const TenantSchema = new Schema<TenantDoc>({
     name: { type: String, required: true },
     settings: {
-      maxNotes: { type: Number, default: 50 },
+      maxNotes: { type: Number, default: function(this: TenantDoc) { return this.plan === 'free' ? 3 : 50; } },
+      maxUsers: { type: Number, default: function(this: TenantDoc) { return this.plan === 'free' ? 1 : 1000; } },
     },
     plan: { type: String, default: 'free' },
     createdAt: { type: Date, default: Date.now },
