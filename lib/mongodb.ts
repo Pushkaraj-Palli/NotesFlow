@@ -90,10 +90,20 @@ try {
     updatedAt: { type: Date, default: Date.now },
   });
 
+  UserSchema.index({ email: 1, tenantId: 1 }, { unique: true });
+
+  UserSchema.pre('save', function(next) {
+    if (this.isModified('email')) {
+      this.email = this.email.toLowerCase();
+    }
+    this.updatedAt = new Date();
+    next();
+  });
+
   const TenantSchema = new Schema<TenantDoc>({
     name: { type: String, required: true },
     settings: {
-      maxNotes: { type: Number, default: function(this: TenantDoc) { return this.plan === 'free' ? 3 : 50; } },
+      maxNotes: { type: Number, default: function(this: TenantDoc) { return this.plan === 'free' ? 3 : 999999; } },
       maxUsers: { type: Number, default: function(this: TenantDoc) { return this.plan === 'free' ? 1 : 1000; } },
     },
     plan: { type: String, default: 'free' },

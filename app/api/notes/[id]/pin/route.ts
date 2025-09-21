@@ -9,6 +9,12 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
     return createErrorResponse("Unauthorized", 401);
   }
   const { user, tenant } = authResult;
+
+  // Check if the user has the 'admin' or 'user' role
+  if (user.role !== 'admin' && user.role !== 'user') {
+    return createErrorResponse("Forbidden: Insufficient role", 403);
+  }
+
   const { id } = params;
 
   try {

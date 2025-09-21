@@ -11,6 +11,11 @@ export async function GET(request: NextRequest) {
   }
   const { user, tenant } = authResult;
 
+  // Check if the user has the 'admin' or 'user' role
+  if (user.role !== 'admin' && user.role !== 'user') {
+    return createErrorResponse("Forbidden: Insufficient role", 403);
+  }
+
   try {
     await connectDB();
 
@@ -47,6 +52,13 @@ export async function POST(request: NextRequest) {
     return createErrorResponse("Unauthorized", 401);
   }
   const { user, tenant } = authResult;
+
+  // Check if the user has the 'admin' or 'user' role
+  if (user.role !== 'admin' && user.role !== 'user') {
+    console.error("app/api/notes/route.ts: Forbidden: Insufficient role for note creation.");
+    return createErrorResponse("Forbidden: Insufficient role", 403);
+  }
+
   console.log(`app/api/notes/route.ts: User ${user._id} (${user.email}) from Tenant ${tenant._id} attempting to create note.`);
 
   try {
@@ -83,6 +95,12 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
     return createErrorResponse("Unauthorized", 401);
   }
   const { user, tenant } = authResult;
+
+  // Check if the user has the 'admin' or 'user' role
+  if (user.role !== 'admin' && user.role !== 'user') {
+    return createErrorResponse("Forbidden: Insufficient role", 403);
+  }
+
   const { id } = params;
 
   try {
@@ -112,6 +130,12 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
     return createErrorResponse("Unauthorized", 401);
   }
   const { user, tenant } = authResult;
+
+  // Check if the user has the 'admin' or 'user' role
+  if (user.role !== 'admin' && user.role !== 'user') {
+    return createErrorResponse("Forbidden: Insufficient role", 403);
+  }
+
   const { id } = params;
 
   try {

@@ -123,6 +123,17 @@ export function Header({ onCreateNote, searchQuery, onSearchChange }: HeaderProp
                   <Settings className="mr-2 h-4 w-4 text-primary" />
                   Settings
                 </DropdownMenuItem>
+                {user?.role === 'admin' && (
+                  <>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem className="hover:bg-accent/10" onClick={() => router.push("/dashboard/admin/invite-user")}>
+                      Invite User
+                    </DropdownMenuItem>
+                    <DropdownMenuItem className="hover:bg-accent/10" onClick={() => router.push("/dashboard/admin/manage-subscription")}>
+                      Manage Subscription
+                    </DropdownMenuItem>
+                  </>
+                )}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleLogout} className="text-destructive hover:bg-destructive/10">
                   <LogOut className="mr-2 h-4 w-4" />

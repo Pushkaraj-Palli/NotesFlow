@@ -53,7 +53,7 @@ export default function DashboardPage() {
   }, [notes])
 
   // Check if user can create more notes
-  const canCreateNote = tenant?.plan === "pro" || notes.length < (tenant?.settings.maxNotes || 50);
+  const canCreateNote = tenant?.plan === "pro" || notes.length < (tenant?.settings.maxNotes || 3);
 
   // Refetch notes when user changes
   useEffect(() => {

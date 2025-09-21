@@ -9,6 +9,12 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
     return createErrorResponse("Unauthorized", 401);
   }
   const { user, tenant } = authResult;
+
+  // Check if the user has the 'admin' or 'user' role
+  if (user.role !== 'admin' && user.role !== 'user') {
+    return createErrorResponse("Forbidden: Insufficient role", 403);
+  }
+
   const { id } = params;
 
   try {
@@ -32,6 +38,12 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
     return createErrorResponse("Unauthorized", 401);
   }
   const { user, tenant } = authResult;
+
+  // Check if the user has the 'admin' or 'user' role
+  if (user.role !== 'admin' && user.role !== 'user') {
+    return createErrorResponse("Forbidden: Insufficient role", 403);
+  }
+
   const { id } = params;
 
   try {
@@ -61,6 +73,12 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
     return createErrorResponse("Unauthorized", 401);
   }
   const { user, tenant } = authResult;
+
+  // Check if the user has the 'admin' or 'user' role
+  if (user.role !== 'admin' && user.role !== 'user') {
+    return createErrorResponse("Forbidden: Insufficient role", 403);
+  }
+
   const { id } = params;
 
   try {
